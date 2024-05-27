@@ -112,7 +112,7 @@ if [ "${uploadCodeSigning}" = true ] ; then
 fi
 
 # Add Applivery API URL
-curl_cmd="$curl_cmd https://api.applivery.io/v1/integrations/builds"
+curl_cmd="$curl_cmd https://upload.applivery.io/v1/integrations/builds"
 
 echo
 echo "=> Curl:"
