@@ -81,45 +81,50 @@ echo "* tmpAppPath: ${tmpAppPath}"
 
 ############# GENERATE CURL ##############
 
+curl_cmd="curl"
+
 # Add Cmain params
-curl_cmd="curl --fail"
-curl_cmd="$curl_cmd -H \"Authorization: bearer ${appToken}\""
-curl_cmd="$curl_cmd -F \"versionName=${versionName}\""
-curl_cmd="$curl_cmd -F \"changelog=${changelog}\""
-curl_cmd="$curl_cmd -F \"notifyCollaborators=${notifyCollaborators}\""
-curl_cmd="$curl_cmd -F \"notifyEmployees=${notifyEmployees}\""
-curl_cmd="$curl_cmd -F \"tags=${tags}\""
-curl_cmd="$curl_cmd -F \"filter=${filter}\""
+curl_args=(
+  --fail
+  -H "Authorization: bearer ${appToken}"
+  -F "versionName=${versionName}"
+  -F "changelog=${changelog}"
+  -F "notifyCollaborators=${notifyCollaborators}"
+  -F "notifyEmployees=${notifyEmployees}"
+  -F "tags=${tags}"
+  -F "filter=${filter}"
 
-curl_cmd="$curl_cmd -F \"build=@${ipa_path}\""
-curl_cmd="$curl_cmd -F \"simulatorBuild=@${tmpAppPath}\""
-curl_cmd="$curl_cmd -F \"deployer.name=bitrise\""
-curl_cmd="$curl_cmd -F \"deployer.info.commitMessage=${commitMessage}\""
-curl_cmd="$curl_cmd -F \"deployer.info.commit=${commit}\""
-curl_cmd="$curl_cmd -F \"deployer.info.branch=${branch}\""
-curl_cmd="$curl_cmd -F \"deployer.info.tag=${tag}\""
-curl_cmd="$curl_cmd -F \"deployer.info.triggerTimestamp=${triggerTimestamp}\""
-curl_cmd="$curl_cmd -F \"deployer.info.buildUrl=${buildUrl}\""
-curl_cmd="$curl_cmd -F \"deployer.info.ciUrl=${ciUrl}\""
-curl_cmd="$curl_cmd -F \"deployer.info.repositoryUrl=${repositoryUrl}\""
-curl_cmd="$curl_cmd -F \"deployer.info.buildNumber=${buildNumber}\""
-
+  -F "build=@${ipa_path}"
+  -F "simulatorBuild=@${tmpAppPath}"
+  -F "deployer.name=bitrise"
+  -F "deployer.info.commitMessage=${commitMessage}"
+  -F "deployer.info.commit=${commit}"
+  -F "deployer.info.branch=${branch}"
+  -F "deployer.info.tag=${tag}"
+  -F "deployer.info.triggerTimestamp=${triggerTimestamp}"
+  -F "deployer.info.buildUrl=${buildUrl}"
+  -F "deployer.info.ciUrl=${ciUrl}"
+  -F "deployer.info.repositoryUrl=${repositoryUrl}"
+  -F "deployer.info.buildNumber=${buildNumber}"
+)
 # Add Codesigning conditionally
 if [ "${uploadCodeSigning}" = true ] ; then
-  curl_cmd="$curl_cmd -F \"deployer.info.provisionUrl=${provisionUrl}\""
-  curl_cmd="$curl_cmd -F \"deployer.info.certificateUrl=${certificateUrl}\""
-  curl_cmd="$curl_cmd -F \"deployer.info.certificatePassphrase=${certificatePassphrase}\""
+  curl_args+=(
+    -F "deployer.info.provisionUrl=${provisionUrl}"
+    -F "deployer.info.certificateUrl=${certificateUrl}"
+    -F "deployer.info.certificatePassphrase=${certificatePassphrase}"
+  )
 fi
 
 # Add Applivery API URL
-curl_cmd="$curl_cmd https://upload.applivery.io/v1/integrations/builds"
+curl_args+=("https://upload.applivery.io/v1/integrations/builds")
 
 echo
 echo "=> Curl:"
-echo '$' $curl_cmd
+echo "$ $curl_cmd" "${curl_args[@]}"
 echo
 
-json=$(eval $curl_cmd)
+json=$("$curl_cmd" "${curl_args[@]}")
 curl_res=$?
 
 echo
